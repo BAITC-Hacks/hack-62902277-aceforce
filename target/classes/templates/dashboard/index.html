@@ -1,0 +1,31 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/layout :: head(#{nav.dashboard})}"></head><body th:with="employeeId=${career.employee.id}">
+<aside th:replace="~{fragments/layout :: sidebar}"></aside><main class="main">
+<header class="topbar"><div><p class="eyebrow" th:text="#{nav.dashboard}">Overview</p><h1><span th:text="#{hello}">Hello</span>, <span th:text="${career.employee.fullName}"></span><span class="hello-dot">✦</span></h1>
+<p class="muted" th:text="#{dashboard.subtitle}">Every step brings your next role closer.</p></div>
+<form th:if="${isHr}" method="get" th:action="@{/}"><label for="employee" class="small" th:text="#{employee}">Employee</label>
+<select id="employee" name="employeeId" data-auto-submit><option th:each="e:${employees}" th:value="${e.id}" th:selected="${e.id==employeeId}" th:text="${e.id+' · '+e.fullName}"></option></select></form></header>
+<div class="success" role="status" th:if="${param.completed}" th:text="#{completed.notice}"></div>
+<section class="hero-grid"><article class="journey-card"><p class="eyebrow" th:text="#{your.path}"></p><div class="role-path">
+<div><span class="small" th:text="#{current.role}"></span><h2 th:text="${career.employee.role}"></h2><span class="pill" th:text="${career.employee.grade}"></span></div>
+<span class="path-arrow">→</span><div><span class="small" th:text="#{target.role}"></span><h2 th:text="${career.target.role}"></h2><span class="pill pale" th:text="${career.target.grade}"></span></div></div>
+<div class="progress-label"><span th:text="#{readiness}"></span><strong th:text="${career.percent+'%'}"></strong></div><div class="progress-track"><div th:style="'width:'+ ${career.percent}+'%'"></div></div>
+<p class="small" th:text="${career.criticalReady}?#{critical.ready}:#{critical.missing}"></p><p class="small" th:if="${career.defaultTarget}" th:text="#{default.goal}"></p>
+</article><article class="level-card"><p class="eyebrow" th:text="#{your.level}"></p><div class="level-number" th:text="${game.level}"></div><h3 th:text="${game.xp+' XP'}"></h3><p class="muted" th:text="#{xp.note}"></p><span class="pill" th:text="${game.completed}+' '+#{completed.count}"></span></article></section>
+<section class="content-grid"><div><div class="section-heading"><div><p class="eyebrow">NEXT BEST ACTION</p><h2 th:text="#{recommendations}"></h2></div><span class="pill" th:text="#{explainable}"></span></div>
+<article class="empty card" th:if="${recommendations.isEmpty()}"><h3 th:text="#{no.recommendations}"></h3><p th:text="#{no.recommendations.detail}"></p></article>
+<article class="recommendation card" th:each="r,iter:${recommendations}"><div class="recommendation-top"><span class="step" th:text="${'0'+(iter.index+1)}"></span><div><span class="tag" th:text="${r.event.type+' · '+r.event.format}"></span><h3 th:text="${r.event.title}"></h3></div><strong class="score" th:text="${r.score}"></strong></div>
+<p class="muted" th:text="${r.event.description}"></p><div class="impact"><span th:text="${'+'+r.impact}+' '+#{skill.levels}"></span><span th:text="${r.event.durationHours}+' '+#{hours}"></span><span>+100 XP</span></div>
+<details open><summary th:text="#{why}"></summary><ol class="reasons">
+<li><span th:text="#{reason.gap}"></span> <strong th:text="${#strings.listJoin(r.skillNames,', ')}"></strong>.</li>
+<li th:text="#{reason.match}"></li><li><span th:text="#{reason.history}"></span> <strong th:text="${r.previousCompletions}"></strong> / <strong th:text="${r.previousDropouts}"></strong>.</li>
+</ol></details><form th:action="@{/employees/{id}/complete/{event}(id=${employeeId},event=${r.event.id})}" method="post">
+<input type="hidden" name="requestId" th:value="${requestId}"><button class="primary" th:text="${r.continueStarted}?#{finish.started}:#{complete}"></button><small class="muted" th:text="#{simulation}"></small></form></article></div>
+<aside class="right-column"><article class="card"><p class="eyebrow" th:text="#{competency.map}"></p><h2 th:text="#{skills}"></h2>
+<div class="skill" th:each="g:${career.gaps}"><div class="skill-label"><span th:text="${g.name}"></span><strong th:text="${g.current+'/'+g.required}"></strong></div>
+<div class="mini-track"><div th:style="'width:'+ ${g.required==0?100:T(java.lang.Math).min(100,g.current*100/g.required)}+'%'" th:classappend="${g.missing==0}?'ready':''"></div></div><small class="critical" th:if="${g.critical && g.missing>0}" th:text="#{critical}"></small></div></article>
+<article class="card"><h3 th:text="#{change.goal}"></h3><form th:action="@{/employees/{id}/goal(id=${employeeId})}" method="post">
+<label for="role" th:text="#{role}"></label><select id="role" name="targetRole"><option th:each="role:${roles}" th:value="${role}" th:text="${role}" th:selected="${role==career.target.role}"></option></select>
+<label for="grade" th:text="#{grade}"></label><select id="grade" name="targetGrade"><option th:each="g:${ {'Junior','Middle','Senior','Lead'} }" th:text="${g}" th:value="${g}" th:selected="${g==career.target.grade}"></option></select>
+<button class="secondary" th:text="#{save}"></button></form></article></aside></section>
+<footer th:text="#{disclaimer}"></footer></main></body></html>

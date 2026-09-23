@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmployeeAccess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.controller.support</a> &gt; <span class="el_source">EmployeeAccess.java</span></div><h1>EmployeeAccess.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.controller.support;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+@Component
+public class EmployeeAccess {
+  private final JdbcTemplate jdbc;
+
+<span class="fc" id="L12">  public EmployeeAccess(JdbcTemplate jdbc) {</span>
+<span class="fc" id="L13">    this.jdbc = jdbc;</span>
+<span class="fc" id="L14">  }</span>
+
+  public boolean isHr(Authentication auth) {
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">    return auth != null</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        &amp;&amp; auth.getAuthorities().stream().anyMatch(a -&gt; a.getAuthority().equals(&quot;ROLE_HR&quot;));</span>
+  }
+
+  public String resolve(Authentication auth, String requested) {
+<span class="pc bpc" id="L22" title="1 of 6 branches missed.">    if (isHr(auth)) return requested == null || requested.isBlank() ? &quot;E0001&quot; : requested;</span>
+<span class="fc" id="L23">    String own =</span>
+        jdbc
+<span class="fc" id="L25">            .query(</span>
+                &quot;SELECT employee_id FROM app_user WHERE username=?&quot;,
+<span class="fc" id="L27">                (r, n) -&gt; r.getString(1),</span>
+<span class="fc" id="L28">                auth.getName())</span>
+<span class="fc" id="L29">            .stream()</span>
+<span class="fc" id="L30">            .findFirst()</span>
+<span class="pc" id="L31">            .orElseThrow(() -&gt; new AccessDeniedException(&quot;No employee mapping&quot;));</span>
+<span class="fc bfc" id="L32" title="All 4 branches covered.">    if (requested != null &amp;&amp; !requested.equals(own))</span>
+<span class="fc" id="L33">      throw new AccessDeniedException(&quot;Access to another employee is forbidden&quot;);</span>
+<span class="fc" id="L34">    return own;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

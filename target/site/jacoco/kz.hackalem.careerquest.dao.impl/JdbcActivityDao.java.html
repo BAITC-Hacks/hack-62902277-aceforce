@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JdbcActivityDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.dao.impl</a> &gt; <span class="el_source">JdbcActivityDao.java</span></div><h1>JdbcActivityDao.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.dao.impl;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.*;
+import kz.hackalem.careerquest.dao.ActivityDao;
+import kz.hackalem.careerquest.model.ActivityRecord;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class JdbcActivityDao implements ActivityDao {
+  private final JdbcTemplate jdbc;
+
+<span class="fc" id="L15">  public JdbcActivityDao(JdbcTemplate jdbc) {</span>
+<span class="fc" id="L16">    this.jdbc = jdbc;</span>
+<span class="fc" id="L17">  }</span>
+
+  private ActivityRecord map(ResultSet r, int n) throws SQLException {
+<span class="fc" id="L20">    var due = r.getDate(&quot;due_date&quot;);</span>
+<span class="fc" id="L21">    return new ActivityRecord(</span>
+<span class="fc" id="L22">        r.getString(&quot;id&quot;),</span>
+<span class="fc" id="L23">        r.getString(&quot;employee_id&quot;),</span>
+<span class="fc" id="L24">        r.getString(&quot;event_id&quot;),</span>
+<span class="fc" id="L25">        r.getDate(&quot;activity_date&quot;).toLocalDate(),</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        due == null ? null : due.toLocalDate(),</span>
+<span class="fc" id="L27">        r.getString(&quot;status&quot;),</span>
+<span class="fc" id="L28">        r.getInt(&quot;completion_pct&quot;),</span>
+<span class="fc" id="L29">        r.getObject(&quot;score&quot;, Integer.class),</span>
+<span class="fc" id="L30">        r.getObject(&quot;feedback_rating&quot;, Integer.class),</span>
+<span class="fc" id="L31">        r.getString(&quot;assigned_by&quot;));</span>
+  }
+
+  public List&lt;ActivityRecord&gt; findAll() {
+<span class="fc" id="L35">    return jdbc.query(&quot;SELECT * FROM activity_record ORDER BY activity_date,id&quot;, this::map);</span>
+  }
+
+  public List&lt;ActivityRecord&gt; findByEmployee(String id) {
+<span class="fc" id="L39">    return jdbc.query(</span>
+        &quot;SELECT * FROM activity_record WHERE employee_id=? ORDER BY activity_date,id&quot;,
+        this::map,
+        id);
+  }
+
+  public void insert(ActivityRecord r, String requestId) {
+<span class="fc" id="L46">    jdbc.update(</span>
+        &quot;INSERT INTO activity_record VALUES (?,?,?,?,?,?,?,?,?,?,?)&quot;,
+<span class="fc" id="L48">        r.id(),</span>
+<span class="fc" id="L49">        r.employeeId(),</span>
+<span class="fc" id="L50">        r.eventId(),</span>
+<span class="fc" id="L51">        r.date(),</span>
+<span class="fc" id="L52">        r.dueDate(),</span>
+<span class="fc" id="L53">        r.status(),</span>
+<span class="fc" id="L54">        r.completionPct(),</span>
+<span class="fc" id="L55">        r.score(),</span>
+<span class="fc" id="L56">        r.feedbackRating(),</span>
+<span class="fc" id="L57">        r.assignedBy(),</span>
+        requestId);
+<span class="fc" id="L59">  }</span>
+
+  public boolean requestExists(String id) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    return jdbc.queryForObject(</span>
+            &quot;SELECT COUNT(*) FROM activity_record WHERE request_id=?&quot;, Integer.class, id)
+        &gt; 0;
+  }
+
+  public void finishStarted(String id, LocalDate date, String requestId) {
+<span class="fc" id="L68">    jdbc.update(</span>
+        &quot;UPDATE activity_record SET&quot;
+            + &quot; status='completed',completion_pct=100,activity_date=?,request_id=? WHERE id=? AND&quot;
+            + &quot; status='in_progress'&quot;,
+        date,
+        requestId,
+        id);
+<span class="fc" id="L75">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

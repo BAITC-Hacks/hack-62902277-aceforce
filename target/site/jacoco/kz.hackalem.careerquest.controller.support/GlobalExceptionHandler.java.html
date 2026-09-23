@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.controller.support</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.controller.support;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
+import kz.hackalem.careerquest.exception.*;
+import org.slf4j.*;
+import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+@ControllerAdvice
+<span class="fc" id="L14">public class GlobalExceptionHandler {</span>
+<span class="fc" id="L15">  private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+
+  @ExceptionHandler(Exception.class)
+  public Object handle(Exception exception, HttpServletRequest request) {
+    HttpStatus status =
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        exception instanceof NotFoundException</span>
+<span class="fc" id="L21">            ? HttpStatus.NOT_FOUND</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">            : exception instanceof AccessDeniedException</span>
+<span class="fc" id="L23">                ? HttpStatus.FORBIDDEN</span>
+                : exception instanceof BusinessException
+                        || exception instanceof MethodArgumentNotValidException
+<span class="pc bpc" id="L26" title="3 of 6 branches missed.">                        || exception instanceof IllegalArgumentException</span>
+<span class="fc" id="L27">                    ? HttpStatus.BAD_REQUEST</span>
+<span class="pc" id="L28">                    : HttpStatus.INTERNAL_SERVER_ERROR;</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">    if (status.is5xxServerError())</span>
+<span class="nc" id="L30">      LOG.error(&quot;Request failed: {}&quot;, request.getRequestURI(), exception);</span>
+<span class="fc" id="L31">    String key = &quot;error.&quot; + status.value();</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (request.getRequestURI().startsWith(&quot;/api/&quot;))</span>
+<span class="fc" id="L33">      return ResponseEntity.status(status).body(Map.of(&quot;status&quot;, status.value(), &quot;error&quot;, key));</span>
+<span class="fc" id="L34">    var view = new ModelAndView(&quot;error/error&quot;);</span>
+<span class="fc" id="L35">    view.setStatus(status);</span>
+<span class="fc" id="L36">    view.addObject(&quot;status&quot;, status.value());</span>
+<span class="fc" id="L37">    view.addObject(&quot;messageKey&quot;, key);</span>
+<span class="fc" id="L38">    return view;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

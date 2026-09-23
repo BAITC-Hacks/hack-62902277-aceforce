@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JdbcCatalogDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.dao.impl</a> &gt; <span class="el_source">JdbcCatalogDao.java</span></div><h1>JdbcCatalogDao.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.dao.impl;
+
+import java.util.*;
+import kz.hackalem.careerquest.dao.CatalogDao;
+import kz.hackalem.careerquest.model.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class JdbcCatalogDao implements CatalogDao {
+  private final JdbcTemplate jdbc;
+
+<span class="fc" id="L13">  public JdbcCatalogDao(JdbcTemplate jdbc) {</span>
+<span class="fc" id="L14">    this.jdbc = jdbc;</span>
+<span class="fc" id="L15">  }</span>
+
+  public List&lt;Skill&gt; skills() {
+<span class="fc" id="L18">    return jdbc.query(</span>
+        &quot;SELECT * FROM skill ORDER BY id&quot;,
+        (r, n) -&gt;
+<span class="fc" id="L21">            new Skill(</span>
+<span class="fc" id="L22">                r.getString(&quot;id&quot;),</span>
+<span class="fc" id="L23">                r.getString(&quot;name&quot;),</span>
+<span class="fc" id="L24">                r.getString(&quot;type&quot;),</span>
+<span class="fc" id="L25">                r.getString(&quot;category&quot;),</span>
+<span class="fc" id="L26">                r.getString(&quot;description&quot;)));</span>
+  }
+
+  public List&lt;RoleProfile&gt; profiles() {
+<span class="fc" id="L30">    return jdbc.query(</span>
+        &quot;SELECT * FROM role_profile ORDER BY id&quot;,
+        (r, n) -&gt; {
+<span class="fc" id="L33">          int id = r.getInt(&quot;id&quot;);</span>
+<span class="fc" id="L34">          Map&lt;String, Integer&gt; req = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L35">          Set&lt;String&gt; critical = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L36">          jdbc.query(</span>
+              &quot;SELECT * FROM role_requirement WHERE profile_id=? ORDER BY skill_id&quot;,
+              x -&gt; {
+<span class="fc" id="L39">                req.put(x.getString(&quot;skill_id&quot;), x.getInt(&quot;required_level&quot;));</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">                if (x.getBoolean(&quot;critical&quot;)) critical.add(x.getString(&quot;skill_id&quot;));</span>
+<span class="fc" id="L41">              },</span>
+<span class="fc" id="L42">              id);</span>
+<span class="fc" id="L43">          return new RoleProfile(id, r.getString(&quot;role_name&quot;), r.getString(&quot;grade&quot;), req, critical);</span>
+        });
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

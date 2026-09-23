@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SkillMath.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.util</a> &gt; <span class="el_source">SkillMath.java</span></div><h1>SkillMath.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.util;
+
+public final class SkillMath {
+  private SkillMath() {}
+
+  public static int applyGain(int current, int gain, int cap) {
+<span class="fc" id="L7">    return Math.min(5, Math.max(current, Math.min(cap, current + Math.max(0, gain))));</span>
+  }
+
+  public static String nextGrade(String grade) {
+<span class="fc bfc" id="L11" title="All 4 branches covered.">    return switch (grade) {</span>
+<span class="fc" id="L12">      case &quot;Junior&quot; -&gt; &quot;Middle&quot;;</span>
+<span class="fc" id="L13">      case &quot;Middle&quot; -&gt; &quot;Senior&quot;;</span>
+<span class="fc" id="L14">      case &quot;Senior&quot;, &quot;Lead&quot; -&gt; &quot;Lead&quot;;</span>
+<span class="fc" id="L15">      default -&gt; throw new IllegalArgumentException(&quot;Unknown grade&quot;);</span>
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

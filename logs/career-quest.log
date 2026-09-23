@@ -1,0 +1,66 @@
+2026-09-23 17:34:42,157 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.CareerQuestApplicationTest]: CareerQuestApplicationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:42,484 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.CareerQuestApplicationTest
+2026-09-23 17:34:43,078 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+2026-09-23 17:34:43,117 INFO  kz.hackalem.careerquest.CareerQuestApplicationTest - Starting CareerQuestApplicationTest using Java 25.0.1 with PID 18186 (started by yeldarskiy in /Users/yeldarskiy/IdeaProjects/hack-62902277-aceforce)
+2026-09-23 17:34:43,121 INFO  kz.hackalem.careerquest.CareerQuestApplicationTest - The following 1 profile is active: "demo"
+2026-09-23 17:34:43,970 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-23 17:34:44,202 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:career user=SA
+2026-09-23 17:34:44,203 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-23 17:34:44,387 INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-09-23 17:34:44,724 INFO  org.springframework.boot.test.mock.web.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2026-09-23 17:34:44,724 INFO  org.springframework.test.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+2026-09-23 17:34:44,724 INFO  org.springframework.test.web.servlet.TestDispatcherServlet - Completed initialization in 0 ms
+2026-09-23 17:34:44,738 INFO  kz.hackalem.careerquest.CareerQuestApplicationTest - Started CareerQuestApplicationTest in 1.974 seconds (process running for 5.067)
+2026-09-23 17:34:45,666 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.config.SecurityConfigTest]: SecurityConfigTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:45,671 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.config.SecurityConfigTest
+2026-09-23 17:34:45,897 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /login status=200 elapsedMs=202
+2026-09-23 17:34:45,915 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /css/app.css status=200 elapsedMs=9
+2026-09-23 17:34:46,220 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.config.WebConfigTest]: WebConfigTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,222 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.config.WebConfigTest
+2026-09-23 17:34:46,427 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.dao.impl.JdbcActivityDaoTest]: JdbcActivityDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,432 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.dao.impl.JdbcActivityDaoTest
+2026-09-23 17:34:46,468 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.dao.impl.JdbcEventDaoTest]: JdbcEventDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,469 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.dao.impl.JdbcEventDaoTest
+2026-09-23 17:34:46,492 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.dao.impl.JdbcCatalogDaoTest]: JdbcCatalogDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,494 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.dao.impl.JdbcCatalogDaoTest
+2026-09-23 17:34:46,507 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.dao.impl.JdbcEmployeeDaoTest]: JdbcEmployeeDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,510 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.dao.impl.JdbcEmployeeDaoTest
+2026-09-23 17:34:46,532 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.controller.DashboardControllerTest]: DashboardControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,537 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.controller.DashboardControllerTest
+2026-09-23 17:34:46,579 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - POST /employees/E0001/goal status=302 elapsedMs=37
+2026-09-23 17:34:46,587 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET / status=404 elapsedMs=4
+2026-09-23 17:34:46,669 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET / status=200 elapsedMs=78
+2026-09-23 17:34:46,711 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET / status=200 elapsedMs=28
+2026-09-23 17:34:46,741 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET / status=200 elapsedMs=27
+2026-09-23 17:34:46,753 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /activities status=200 elapsedMs=7
+2026-09-23 17:34:46,759 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /achievements status=200 elapsedMs=3
+2026-09-23 17:34:46,763 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET / status=403 elapsedMs=0
+2026-09-23 17:34:46,767 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.controller.HrControllerTest]: HrControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,770 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.controller.HrControllerTest
+2026-09-23 17:34:46,782 INFO  kz.hackalem.careerquest.controller.HrControllerTest - Starting HrControllerTest using Java 25.0.1 with PID 18186 (started by yeldarskiy in /Users/yeldarskiy/IdeaProjects/hack-62902277-aceforce)
+2026-09-23 17:34:46,782 INFO  kz.hackalem.careerquest.controller.HrControllerTest - The following 1 profile is active: "demo"
+2026-09-23 17:34:46,876 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2026-09-23 17:34:46,877 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:career user=SA
+2026-09-23 17:34:46,877 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+2026-09-23 17:34:46,898 INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-09-23 17:34:46,939 INFO  org.springframework.boot.test.mock.web.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+2026-09-23 17:34:46,940 INFO  org.springframework.test.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+2026-09-23 17:34:46,940 INFO  org.springframework.test.web.servlet.TestDispatcherServlet - Completed initialization in 0 ms
+2026-09-23 17:34:46,944 INFO  kz.hackalem.careerquest.controller.HrControllerTest - Started HrControllerTest in 0.172 seconds (process running for 7.272)
+2026-09-23 17:34:46,968 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /hr status=200 elapsedMs=16
+2026-09-23 17:34:46,974 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.controller.support.EmployeeAccessTest]: EmployeeAccessTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,979 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.controller.support.EmployeeAccessTest
+2026-09-23 17:34:46,988 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.controller.ApiControllerTest]: ApiControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:46,990 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.controller.ApiControllerTest
+2026-09-23 17:34:47,030 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /api/data/summary status=200 elapsedMs=37
+2026-09-23 17:34:47,076 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /api/employees/E0001/career status=200 elapsedMs=22
+2026-09-23 17:34:47,106 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - POST /api/employees/E0001/goal status=400 elapsedMs=28
+2026-09-23 17:34:47,132 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - POST /api/employees/E0001/complete status=200 elapsedMs=15
+2026-09-23 17:34:47,137 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - POST /api/employees/E0001/complete status=200 elapsedMs=4
+2026-09-23 17:34:47,220 INFO  org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [kz.hackalem.careerquest.service.DatasetImportServiceTest]: DatasetImportServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-23 17:34:47,224 INFO  org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration kz.hackalem.careerquest.CareerQuestApplication for test class kz.hackalem.careerquest.service.DatasetImportServiceTest
+2026-09-23 17:34:47,233 INFO  kz.hackalem.careerquest.interceptor.RequestTimingInterceptor - GET /dashboard status=200 elapsedMs=0
+2026-09-23 17:34:47,245 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-09-23 17:34:47,246 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-09-23 17:34:47,248 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown initiated...
+2026-09-23 17:34:47,266 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown completed.

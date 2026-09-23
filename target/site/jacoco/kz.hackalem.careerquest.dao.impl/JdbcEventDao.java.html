@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JdbcEventDao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.dao.impl</a> &gt; <span class="el_source">JdbcEventDao.java</span></div><h1>JdbcEventDao.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.dao.impl;
+
+import java.sql.*;
+import java.util.*;
+import kz.hackalem.careerquest.dao.EventDao;
+import kz.hackalem.careerquest.model.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
+public class JdbcEventDao implements EventDao {
+  private final JdbcTemplate jdbc;
+
+<span class="fc" id="L15">  public JdbcEventDao(JdbcTemplate jdbc) {</span>
+<span class="fc" id="L16">    this.jdbc = jdbc;</span>
+<span class="fc" id="L17">  }</span>
+
+  private CareerEvent map(ResultSet r, int row) throws SQLException {
+<span class="fc" id="L20">    String id = r.getString(&quot;id&quot;);</span>
+<span class="fc" id="L21">    List&lt;DevelopedSkill&gt; developed = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L22">    Map&lt;String, Integer&gt; pre = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L23">    jdbc.query(</span>
+        &quot;SELECT * FROM event_skill WHERE event_id=? ORDER BY skill_id&quot;,
+        x -&gt; {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">          if (x.getInt(&quot;gain&quot;) &gt; 0)</span>
+<span class="fc" id="L27">            developed.add(</span>
+                new DevelopedSkill(
+<span class="fc" id="L29">                    x.getString(&quot;skill_id&quot;), x.getInt(&quot;gain&quot;), x.getInt(&quot;max_level&quot;)));</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">          if (x.getInt(&quot;prerequisite_level&quot;) &gt; 0)</span>
+<span class="fc" id="L31">            pre.put(x.getString(&quot;skill_id&quot;), x.getInt(&quot;prerequisite_level&quot;));</span>
+<span class="fc" id="L32">        },</span>
+        id);
+<span class="fc" id="L34">    return new CareerEvent(</span>
+        id,
+<span class="fc" id="L36">        r.getString(&quot;title&quot;),</span>
+<span class="fc" id="L37">        r.getString(&quot;description&quot;),</span>
+<span class="fc" id="L38">        r.getString(&quot;event_type&quot;),</span>
+<span class="fc" id="L39">        r.getString(&quot;event_format&quot;),</span>
+<span class="fc" id="L40">        r.getDouble(&quot;duration_hours&quot;),</span>
+<span class="fc" id="L41">        r.getBoolean(&quot;mandatory&quot;),</span>
+<span class="fc" id="L42">        jdbc.queryForList(</span>
+            &quot;SELECT role_name FROM event_role WHERE event_id=? ORDER BY role_name&quot;,
+            String.class,
+            id),
+<span class="fc" id="L46">        jdbc.queryForList(</span>
+            &quot;SELECT grade FROM event_grade WHERE event_id=? ORDER BY grade&quot;, String.class, id),
+        developed,
+        pre,
+<span class="fc" id="L50">        jdbc.query(</span>
+            &quot;SELECT session_date FROM event_session WHERE event_id=? ORDER BY session_date&quot;,
+<span class="fc" id="L52">            (x, n) -&gt; x.getDate(1).toLocalDate(),</span>
+            id));
+  }
+
+  public List&lt;CareerEvent&gt; findAll() {
+<span class="fc" id="L57">    return jdbc.query(&quot;SELECT * FROM career_event ORDER BY id&quot;, this::map);</span>
+  }
+
+  public Optional&lt;CareerEvent&gt; findById(String id) {
+<span class="fc" id="L61">    return jdbc.query(&quot;SELECT * FROM career_event WHERE id=?&quot;, this::map, id).stream().findFirst();</span>
+  }
+
+  @Transactional
+  public void create(CareerEvent e) {
+<span class="fc" id="L66">    jdbc.update(</span>
+        &quot;INSERT INTO career_event VALUES (?,?,?,?,?,?,?)&quot;,
+<span class="fc" id="L68">        e.id(),</span>
+<span class="fc" id="L69">        e.title(),</span>
+<span class="fc" id="L70">        e.description(),</span>
+<span class="fc" id="L71">        e.type(),</span>
+<span class="fc" id="L72">        e.format(),</span>
+<span class="fc" id="L73">        e.durationHours(),</span>
+<span class="fc" id="L74">        e.mandatory());</span>
+<span class="fc" id="L75">    children(e);</span>
+<span class="fc" id="L76">  }</span>
+
+  @Transactional
+  public void update(CareerEvent e) {
+<span class="fc" id="L80">    jdbc.update(</span>
+        &quot;UPDATE career_event SET&quot;
+            + &quot; title=?,description=?,event_type=?,event_format=?,duration_hours=?,mandatory=?&quot;
+            + &quot; WHERE id=?&quot;,
+<span class="fc" id="L84">        e.title(),</span>
+<span class="fc" id="L85">        e.description(),</span>
+<span class="fc" id="L86">        e.type(),</span>
+<span class="fc" id="L87">        e.format(),</span>
+<span class="fc" id="L88">        e.durationHours(),</span>
+<span class="fc" id="L89">        e.mandatory(),</span>
+<span class="fc" id="L90">        e.id());</span>
+<span class="fc" id="L91">    jdbc.update(&quot;DELETE FROM event_role WHERE event_id=?&quot;, e.id());</span>
+<span class="fc" id="L92">    jdbc.update(&quot;DELETE FROM event_grade WHERE event_id=?&quot;, e.id());</span>
+<span class="fc" id="L93">    jdbc.update(&quot;DELETE FROM event_skill WHERE event_id=?&quot;, e.id());</span>
+<span class="fc" id="L94">    jdbc.update(&quot;DELETE FROM event_session WHERE event_id=?&quot;, e.id());</span>
+<span class="fc" id="L95">    children(e);</span>
+<span class="fc" id="L96">  }</span>
+
+  private void children(CareerEvent e) {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">    for (String role : e.targetRoles())</span>
+<span class="fc" id="L100">      jdbc.update(&quot;INSERT INTO event_role VALUES (?,?)&quot;, e.id(), role);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">    for (String grade : e.targetGrades())</span>
+<span class="fc" id="L102">      jdbc.update(&quot;INSERT INTO event_grade VALUES (?,?)&quot;, e.id(), grade);</span>
+<span class="fc" id="L103">    Map&lt;String, DevelopedSkill&gt; gains = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    for (DevelopedSkill s : e.developsSkills()) gains.put(s.skillId(), s);</span>
+<span class="fc" id="L105">    Set&lt;String&gt; ids = new LinkedHashSet&lt;&gt;(gains.keySet());</span>
+<span class="fc" id="L106">    ids.addAll(e.prerequisites().keySet());</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">    for (String id : ids) {</span>
+<span class="fc" id="L108">      DevelopedSkill s = gains.getOrDefault(id, new DevelopedSkill(id, 0, 5));</span>
+<span class="fc" id="L109">      jdbc.update(</span>
+          &quot;INSERT INTO event_skill VALUES (?,?,?,?,?)&quot;,
+<span class="fc" id="L111">          e.id(),</span>
+          id,
+<span class="fc" id="L113">          s.gain(),</span>
+<span class="fc" id="L114">          s.maxLevel(),</span>
+<span class="fc" id="L115">          e.prerequisites().getOrDefault(id, 0));</span>
+<span class="fc" id="L116">    }</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">    for (var date : e.upcomingSessions())</span>
+<span class="fc" id="L118">      jdbc.update(&quot;INSERT INTO event_session VALUES (?,?)&quot;, e.id(), date);</span>
+<span class="fc" id="L119">  }</span>
+
+  public void delete(String id) {
+<span class="fc" id="L122">    jdbc.update(&quot;DELETE FROM career_event WHERE id=?&quot;, id);</span>
+<span class="fc" id="L123">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

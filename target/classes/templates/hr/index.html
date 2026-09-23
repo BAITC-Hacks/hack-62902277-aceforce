@@ -1,0 +1,8 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"><head th:replace="~{fragments/layout :: head(#{nav.hr})}"></head><body><aside th:replace="~{fragments/layout :: sidebar}"></aside><main class="main">
+<p class="eyebrow">PEOPLE & GROWTH</p><h1 th:text="#{nav.hr}"></h1><p class="muted" th:text="#{hr.subtitle}"></p><section class="stats">
+<article class="card"><span th:text="#{employees}"></span><h2 th:text="${analytics.employees}"></h2></article>
+<article class="card"><span th:text="#{average.readiness}"></span><h2 th:text="${analytics.averageProgress+'%'}"></h2></article>
+<article class="card"><span th:text="#{without.goal}"></span><h2 th:text="${analytics.withoutGoal}"></h2></article>
+<article class="card"><span th:text="#{without.next}"></span><h2 th:text="${analytics.withoutNextStep}"></h2></article></section>
+<section class="content-grid"><article class="card"><h2 th:text="#{top.gaps}"></h2><div class="hr-gap" th:each="g:${analytics.topGaps}"><div class="skill-label"><span th:text="${g.key}"></span><strong th:text="${g.value}"></strong></div><div class="mini-track"><div th:style="'width:'+ ${analytics.employees==0?0:g.value*100/analytics.employees}+'%'"></div></div></div></article>
+<article class="card"><h2 th:text="#{activity.statuses}"></h2><div class="status-row" th:each="s:${analytics.statuses}"><span th:text="#{${'status.'+s.key}}"></span><strong th:text="${s.value}"></strong></div></article></section></main></body></html>

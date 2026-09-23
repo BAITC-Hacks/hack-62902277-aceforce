@@ -1,0 +1,1 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org"><head th:replace="~{fragments/layout :: head('Error')}"></head><body class="error-page"><main class="card"><span class="eyebrow">CAREER QUEST</span><h1 th:text="${status}">Error</h1><p th:text="#{${messageKey}}"></p><a class="primary" th:href="@{/}" th:text="#{nav.dashboard}"></a></main></body></html>

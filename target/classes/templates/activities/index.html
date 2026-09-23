@@ -1,0 +1,6 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"><head th:replace="~{fragments/layout :: head(#{nav.activities})}"></head><body><aside th:replace="~{fragments/layout :: sidebar}"></aside>
+<main class="main"><p class="eyebrow">LEARNING JOURNAL</p><h1 th:text="#{nav.activities}"></h1><section class="card table-wrap"><table><thead><tr>
+<th th:text="#{date}"></th><th th:text="#{event}"></th><th th:text="#{status}"></th><th th:text="#{progress}"></th></tr></thead><tbody><tr th:each="r:${records}"><td th:text="${r.date}"></td><td th:text="${r.eventId}"></td>
+<td><span class="pill" th:text="#{${'status.'+r.status}}"></span></td><td th:text="${r.completionPct+'%'}"></td></tr></tbody></table></section>
+<div class="pagination"><a class="secondary" th:if="${page>0}" th:href="@{/activities(employeeId=${employeeId},page=${page-1})}" th:text="#{previous}"></a><span th:text="${(page+1)+' / '+pages}"></span>
+<a class="secondary" th:if="${page+1<pages}" th:href="@{/activities(employeeId=${employeeId},page=${page+1})}" th:text="#{next}"></a></div></main></body></html>

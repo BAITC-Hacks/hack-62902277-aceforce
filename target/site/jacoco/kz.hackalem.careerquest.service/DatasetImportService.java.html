@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatasetImportService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.service</a> &gt; <span class="el_source">DatasetImportService.java</span></div><h1>DatasetImportService.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.service;
+
+import com.fasterxml.jackson.databind.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.time.*;
+import java.util.*;
+import kz.hackalem.careerquest.dao.*;
+import kz.hackalem.careerquest.model.*;
+import org.apache.commons.csv.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class DatasetImportService {
+  private final JdbcTemplate jdbc;
+  private final ObjectMapper mapper;
+  private final ResourceLoader resources;
+  private final EventDao events;
+  private final ActivityDao activities;
+  private final String location;
+
+  public DatasetImportService(
+      JdbcTemplate jdbc,
+      ObjectMapper mapper,
+      ResourceLoader resources,
+      EventDao events,
+      ActivityDao activities,
+<span class="fc" id="L32">      @Value(&quot;${career.dataset-location:classpath:data/}&quot;) String location) {</span>
+<span class="fc" id="L33">    this.jdbc = jdbc;</span>
+<span class="fc" id="L34">    this.mapper = mapper;</span>
+<span class="fc" id="L35">    this.resources = resources;</span>
+<span class="fc" id="L36">    this.events = events;</span>
+<span class="fc" id="L37">    this.activities = activities;</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    this.location = location.endsWith(&quot;/&quot;) ? location : location + &quot;/&quot;;</span>
+<span class="fc" id="L39">  }</span>
+
+  private JsonNode read(String file) throws IOException {
+<span class="fc" id="L42">    try (var in = resources.getResource(location + file).getInputStream()) {</span>
+<span class="fc" id="L43">      return mapper.readTree(in);</span>
+    }
+  }
+
+  private List&lt;String&gt; strings(JsonNode node) {
+<span class="fc" id="L48">    List&lt;String&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L49">    node.forEach(x -&gt; out.add(x.asText()));</span>
+<span class="fc" id="L50">    return out;</span>
+  }
+
+  private Map&lt;String, Integer&gt; integers(JsonNode node) {
+<span class="fc" id="L54">    Map&lt;String, Integer&gt; out = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L55">    node.fields().forEachRemaining(x -&gt; out.put(x.getKey(), x.getValue().asInt()));</span>
+<span class="fc" id="L56">    return out;</span>
+  }
+
+  private String nullable(JsonNode node) {
+<span class="pc bpc" id="L60" title="1 of 4 branches missed.">    return node == null || node.isNull() ? null : node.asText();</span>
+  }
+
+  private Integer number(String v) {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    return v.isBlank() ? null : Integer.valueOf(v);</span>
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void importOnce() throws IOException {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (jdbc.queryForObject(&quot;SELECT COUNT(*) FROM dataset_import&quot;, Integer.class) &gt; 0) return;</span>
+<span class="fc" id="L70">    JsonNode skillDoc = read(&quot;skills.json&quot;);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (JsonNode s : skillDoc.path(&quot;skills&quot;)) {</span>
+<span class="fc" id="L72">      jdbc.update(</span>
+          &quot;INSERT INTO skill VALUES (?,?,?,?,?)&quot;,
+<span class="fc" id="L74">          s.path(&quot;skill_id&quot;).asText(),</span>
+<span class="fc" id="L75">          s.path(&quot;name&quot;).asText(),</span>
+<span class="fc" id="L76">          s.path(&quot;type&quot;).asText(),</span>
+<span class="fc" id="L77">          s.path(&quot;category&quot;).asText(),</span>
+<span class="fc" id="L78">          s.path(&quot;description&quot;).asText());</span>
+<span class="fc" id="L79">    }</span>
+<span class="fc" id="L80">    int profileId = 0;</span>
+<span class="fc" id="L81">    Map&lt;String, Integer&gt; profileIds = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    for (JsonNode p : skillDoc.path(&quot;role_profiles&quot;)) {</span>
+<span class="fc" id="L83">      int id = ++profileId;</span>
+<span class="fc" id="L84">      String role = p.path(&quot;role&quot;).asText(), grade = p.path(&quot;grade&quot;).asText();</span>
+<span class="fc" id="L85">      profileIds.put(role + &quot;|&quot; + grade, id);</span>
+<span class="fc" id="L86">      jdbc.update(&quot;INSERT INTO role_profile VALUES (?,?,?)&quot;, id, role, grade);</span>
+<span class="fc" id="L87">      Set&lt;String&gt; critical = new HashSet&lt;&gt;(strings(p.path(&quot;critical_skills&quot;)));</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">      for (var r : integers(p.path(&quot;required_skills&quot;)).entrySet())</span>
+<span class="fc" id="L89">        jdbc.update(</span>
+            &quot;INSERT INTO role_requirement VALUES (?,?,?,?)&quot;,
+<span class="fc" id="L91">            id,</span>
+<span class="fc" id="L92">            r.getKey(),</span>
+<span class="fc" id="L93">            r.getValue(),</span>
+<span class="fc" id="L94">            critical.contains(r.getKey()));</span>
+<span class="fc" id="L95">    }</span>
+<span class="fc" id="L96">    JsonNode employeeNodes = read(&quot;employees.json&quot;).path(&quot;employees&quot;);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    for (JsonNode e : employeeNodes) {</span>
+<span class="fc" id="L98">      String id = e.path(&quot;employee_id&quot;).asText();</span>
+<span class="fc" id="L99">      jdbc.update(</span>
+          &quot;INSERT INTO employee VALUES (?,?,?,?,?,?,?,?,?,?,?)&quot;,
+          id,
+<span class="fc" id="L102">          e.path(&quot;full_name&quot;).asText(),</span>
+<span class="fc" id="L103">          e.path(&quot;department&quot;).asText(),</span>
+<span class="fc" id="L104">          e.path(&quot;role&quot;).asText(),</span>
+<span class="fc" id="L105">          e.path(&quot;grade&quot;).asText(),</span>
+          null,
+<span class="fc" id="L107">          LocalDate.parse(e.path(&quot;hire_date&quot;).asText()),</span>
+<span class="fc" id="L108">          e.path(&quot;tenure_months&quot;).asInt(),</span>
+<span class="fc" id="L109">          e.path(&quot;work_format&quot;).asText(),</span>
+<span class="fc" id="L110">          e.path(&quot;preferred_language&quot;).asText(),</span>
+<span class="fc" id="L111">          LocalDate.parse(e.path(&quot;last_review_date&quot;).asText()));</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">      for (var s : integers(e.path(&quot;skills&quot;)).entrySet())</span>
+<span class="fc" id="L113">        jdbc.update(&quot;INSERT INTO employee_skill VALUES (?,?,?)&quot;, id, s.getKey(), s.getValue());</span>
+<span class="fc" id="L114">      JsonNode goal = e.path(&quot;career_goal&quot;);</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">      if (!goal.isNull() &amp;&amp; !goal.isMissingNode()) {</span>
+<span class="fc" id="L116">        Integer pid =</span>
+<span class="fc" id="L117">            profileIds.get(</span>
+<span class="fc" id="L118">                goal.path(&quot;target_role&quot;).asText() + &quot;|&quot; + goal.path(&quot;target_grade&quot;).asText());</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (pid == null)</span>
+<span class="nc" id="L120">          throw new IllegalArgumentException(&quot;Unknown target role profile for &quot; + id);</span>
+<span class="fc" id="L121">        jdbc.update(&quot;INSERT INTO career_goal VALUES (?,?)&quot;, id, pid);</span>
+      }
+<span class="fc" id="L123">    }</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">    for (JsonNode e : employeeNodes)</span>
+<span class="fc" id="L125">      jdbc.update(</span>
+          &quot;UPDATE employee SET manager_id=? WHERE id=?&quot;,
+<span class="fc" id="L127">          nullable(e.get(&quot;manager_id&quot;)),</span>
+<span class="fc" id="L128">          e.path(&quot;employee_id&quot;).asText());</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">    for (JsonNode e : read(&quot;events.json&quot;).path(&quot;events&quot;)) {</span>
+<span class="fc" id="L130">      List&lt;DevelopedSkill&gt; developed = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">      for (JsonNode s : e.path(&quot;develops_skills&quot;))</span>
+<span class="fc" id="L132">        developed.add(</span>
+            new DevelopedSkill(
+<span class="fc" id="L134">                s.path(&quot;skill_id&quot;).asText(), s.path(&quot;gain&quot;).asInt(), s.path(&quot;max_level&quot;).asInt()));</span>
+<span class="fc" id="L135">      events.create(</span>
+          new CareerEvent(
+<span class="fc" id="L137">              e.path(&quot;event_id&quot;).asText(),</span>
+<span class="fc" id="L138">              e.path(&quot;title&quot;).asText(),</span>
+<span class="fc" id="L139">              e.path(&quot;description&quot;).asText(),</span>
+<span class="fc" id="L140">              e.path(&quot;type&quot;).asText(),</span>
+<span class="fc" id="L141">              e.path(&quot;format&quot;).asText(),</span>
+<span class="fc" id="L142">              e.path(&quot;duration_hours&quot;).asDouble(),</span>
+<span class="fc" id="L143">              e.path(&quot;mandatory&quot;).asBoolean(),</span>
+<span class="fc" id="L144">              strings(e.path(&quot;target_roles&quot;)),</span>
+<span class="fc" id="L145">              strings(e.path(&quot;target_grades&quot;)),</span>
+              developed,
+<span class="fc" id="L147">              integers(e.path(&quot;prerequisites&quot;)),</span>
+<span class="fc" id="L148">              strings(e.path(&quot;upcoming_sessions&quot;)).stream().map(LocalDate::parse).toList()));</span>
+<span class="fc" id="L149">    }</span>
+<span class="fc" id="L150">    try (var reader =</span>
+            new InputStreamReader(
+<span class="fc" id="L152">                resources.getResource(location + &quot;activity_history.csv&quot;).getInputStream(),</span>
+                StandardCharsets.UTF_8);
+<span class="fc" id="L154">        var csv =</span>
+<span class="fc" id="L155">            CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).get().parse(reader)) {</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">      for (CSVRecord r : csv)</span>
+<span class="fc" id="L157">        activities.insert(</span>
+            new ActivityRecord(
+<span class="fc" id="L159">                r.get(&quot;record_id&quot;),</span>
+<span class="fc" id="L160">                r.get(&quot;employee_id&quot;),</span>
+<span class="fc" id="L161">                r.get(&quot;event_id&quot;),</span>
+<span class="fc" id="L162">                LocalDate.parse(r.get(&quot;date&quot;)),</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">                r.get(&quot;due_date&quot;).isBlank() ? null : LocalDate.parse(r.get(&quot;due_date&quot;)),</span>
+<span class="fc" id="L164">                r.get(&quot;status&quot;),</span>
+<span class="fc" id="L165">                Integer.parseInt(r.get(&quot;completion_pct&quot;)),</span>
+<span class="fc" id="L166">                number(r.get(&quot;score&quot;)),</span>
+<span class="fc" id="L167">                number(r.get(&quot;feedback_rating&quot;)),</span>
+<span class="fc" id="L168">                r.get(&quot;assigned_by&quot;)),</span>
+            null);
+    }
+<span class="fc" id="L171">    jdbc.update(&quot;INSERT INTO dataset_import VALUES (1,?)&quot;, java.sql.Timestamp.from(Instant.now()));</span>
+<span class="fc" id="L172">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

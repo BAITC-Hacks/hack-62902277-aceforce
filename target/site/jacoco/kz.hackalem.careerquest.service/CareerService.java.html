@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CareerService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Career Quest</a> &gt; <a href="index.source.html" class="el_package">kz.hackalem.careerquest.service</a> &gt; <span class="el_source">CareerService.java</span></div><h1>CareerService.java</h1><pre class="source lang-java linenums">package kz.hackalem.careerquest.service;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import kz.hackalem.careerquest.dao.*;
+import kz.hackalem.careerquest.exception.*;
+import kz.hackalem.careerquest.model.*;
+import kz.hackalem.careerquest.util.SkillMath;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CareerService {
+  private final EmployeeDao employees;
+  private final CatalogDao catalog;
+  private final ActivityDao history;
+  private final EventDao events;
+
+  public CareerService(
+<span class="fc" id="L21">      EmployeeDao employees, CatalogDao catalog, ActivityDao history, EventDao events) {</span>
+<span class="fc" id="L22">    this.employees = employees;</span>
+<span class="fc" id="L23">    this.catalog = catalog;</span>
+<span class="fc" id="L24">    this.history = history;</span>
+<span class="fc" id="L25">    this.events = events;</span>
+<span class="fc" id="L26">  }</span>
+
+  public CareerProgress progress(String id) {
+<span class="fc" id="L29">    Employee e =</span>
+<span class="fc" id="L30">        employees.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;Employee not found&quot;));</span>
+    CareerGoal goal =
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        e.goal() == null ? new CareerGoal(e.role(), SkillMath.nextGrade(e.grade())) : e.goal();</span>
+<span class="fc" id="L33">    RoleProfile target =</span>
+<span class="fc" id="L34">        catalog.profiles().stream()</span>
+<span class="pc bpc" id="L35" title="1 of 4 branches missed.">            .filter(p -&gt; p.role().equals(goal.targetRole()) &amp;&amp; p.grade().equals(goal.targetGrade()))</span>
+<span class="fc" id="L36">            .findFirst()</span>
+<span class="pc" id="L37">            .orElseThrow(() -&gt; new BusinessException(&quot;Target profile is missing&quot;));</span>
+<span class="fc" id="L38">    Map&lt;String, Integer&gt; effective = new LinkedHashMap&lt;&gt;(e.skills());</span>
+<span class="fc" id="L39">    Map&lt;String, CareerEvent&gt; byId =</span>
+<span class="fc" id="L40">        events.findAll().stream().collect(Collectors.toMap(CareerEvent::id, Function.identity()));</span>
+<span class="fc" id="L41">    history.findByEmployee(id).stream()</span>
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        .filter(a -&gt; a.status().equals(&quot;completed&quot;) &amp;&amp; a.date().isAfter(e.lastReviewDate()))</span>
+<span class="fc" id="L43">        .sorted(Comparator.comparing(ActivityRecord::date).thenComparing(ActivityRecord::id))</span>
+<span class="fc" id="L44">        .forEach(</span>
+            a -&gt; {
+<span class="fc" id="L46">              CareerEvent event = byId.get(a.eventId());</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">              if (event != null)</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">                for (DevelopedSkill s : event.developsSkills())</span>
+<span class="fc" id="L49">                  effective.compute(</span>
+<span class="fc" id="L50">                      s.skillId(),</span>
+                      (key, value) -&gt;
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">                          SkillMath.applyGain(value == null ? 0 : value, s.gain(), s.maxLevel()));</span>
+<span class="fc" id="L53">            });</span>
+<span class="fc" id="L54">    Map&lt;String, String&gt; names =</span>
+<span class="fc" id="L55">        catalog.skills().stream().collect(Collectors.toMap(Skill::id, Skill::name));</span>
+<span class="fc" id="L56">    List&lt;CareerProgress.Gap&gt; gaps = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L57">    int have = 0, need = 0;</span>
+<span class="fc" id="L58">    boolean criticalReady = true;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    for (var r : target.requiredSkills().entrySet()) {</span>
+<span class="fc" id="L60">      int current = effective.getOrDefault(r.getKey(), 0),</span>
+<span class="fc" id="L61">          missing = Math.max(0, r.getValue() - current);</span>
+<span class="fc" id="L62">      boolean critical = target.criticalSkills().contains(r.getKey());</span>
+<span class="fc" id="L63">      have += Math.min(current, r.getValue());</span>
+<span class="fc" id="L64">      need += r.getValue();</span>
+<span class="fc bfc" id="L65" title="All 4 branches covered.">      if (critical &amp;&amp; missing &gt; 0) criticalReady = false;</span>
+<span class="fc" id="L66">      gaps.add(</span>
+          new CareerProgress.Gap(
+<span class="fc" id="L68">              r.getKey(),</span>
+<span class="fc" id="L69">              names.getOrDefault(r.getKey(), r.getKey()),</span>
+              current,
+<span class="fc" id="L71">              r.getValue(),</span>
+              missing,
+              critical));
+<span class="fc" id="L74">    }</span>
+<span class="fc" id="L75">    gaps.sort(</span>
+<span class="fc" id="L76">        Comparator.comparing(CareerProgress.Gap::critical)</span>
+<span class="fc" id="L77">            .reversed()</span>
+<span class="fc" id="L78">            .thenComparing(Comparator.comparingInt(CareerProgress.Gap::missing).reversed())</span>
+<span class="fc" id="L79">            .thenComparing(CareerProgress.Gap::skillId));</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    double percent = need == 0 ? 100 : Math.round(1000.0 * have / need) / 10.0;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    return new CareerProgress(e, target, effective, percent, gaps, criticalReady, e.goal() == null);</span>
+  }
+
+  @Transactional
+  public void changeGoal(String id, CareerGoal goal) {
+<span class="pc" id="L86">    employees.findById(id).orElseThrow(() -&gt; new NotFoundException(&quot;Employee not found&quot;));</span>
+<span class="fc" id="L87">    RoleProfile profile =</span>
+<span class="fc" id="L88">        catalog.profiles().stream()</span>
+<span class="fc bfc" id="L89" title="All 4 branches covered.">            .filter(p -&gt; p.role().equals(goal.targetRole()) &amp;&amp; p.grade().equals(goal.targetGrade()))</span>
+<span class="fc" id="L90">            .findFirst()</span>
+<span class="fc" id="L91">            .orElseThrow(() -&gt; new BusinessException(&quot;Unknown target role or grade&quot;));</span>
+<span class="fc" id="L92">    employees.lock(id);</span>
+<span class="fc" id="L93">    employees.saveGoal(id, profile.id());</span>
+<span class="fc" id="L94">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

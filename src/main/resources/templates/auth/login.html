@@ -1,0 +1,11 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/layout :: head(#{login.title})}"></head><body class="login-page">
+<section class="login-story"><a class="brand"><span class="brand-mark">CQ</span>Career Quest</a><div><p class="eyebrow">YOUR NEXT CHAPTER</p>
+<h1 th:text="#{login.hero}">Your growth. A clear direction.</h1><p th:text="#{login.subtitle}">Turn learning into your next career move.</p>
+<div class="orbit"><span>01</span><strong th:text="#{role}">Role</strong><span>02</span><strong th:text="#{skills}">Skills</strong><span>03</span><strong th:text="#{goal}">Goal</strong></div></div><small>Hackalem · Career navigation</small></section>
+<main class="login-panel"><div class="languages"><a href="?lang=kk">ҚАЗ</a><a href="?lang=ru">РУС</a><a href="?lang=en">ENG</a></div>
+<form th:action="@{/login}" method="post" class="login-form"><p class="eyebrow">CAREER QUEST</p><h2 th:text="#{login.title}">Welcome back</h2>
+<p class="alert" th:if="${param.error}" th:text="#{login.error}">Invalid credentials</p>
+<label for="username" th:text="#{login.username}">Username</label><input id="username" name="username" autocomplete="username" required autofocus>
+<label for="password" th:text="#{login.password}">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+<button class="primary" th:text="#{login.button}">Sign in</button><p class="muted small" th:text="#{demo.notice}">Demo</p></form></main></body></html>
